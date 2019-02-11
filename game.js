@@ -1,4 +1,3 @@
-
 'use strict'
 var canvas, ctx, w, h,
           world, ship, input,
@@ -35,12 +34,12 @@ class Ship {
   render(ctx) {
     var boxX = this.boxBody.position[0],
         boxY = this.boxBody.position[1];
-        
+
     // draw ship
     ctx.beginPath();
     ctx.save();
     ctx.translate(boxX, boxY);        // Translate to the center of the box
-    ctx.rotate(this.boxBody.angle);  // Rotate to the box body frame
+    ctx.rotate(-this.boxBody.angle);  // Rotate to the box body frame
     ctx.rect(-this.boxShape.width/2, -this.boxShape.height/2, this.boxShape.width, this.boxShape.height);
     ctx.stroke();
 
@@ -51,7 +50,7 @@ class Ship {
     ctx.moveTo(-0.8, -0.5);
     ctx.lineTo(-0.8, -0.5 - leftFire);
     ctx.stroke();
-    
+
     let rightFire = this.thrustRight ? ((this.thrustRight / 5.5) + 0.1) * 0.3 : 0;
     ctx.beginPath();
     ctx.moveTo(0.8, -0.5);
