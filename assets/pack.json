@@ -1,0 +1,65 @@
+{
+  "section1": {"files": [
+    {
+      "type": "animation",
+      "key": "animations",
+      "url": "assets/atlas/animations.json"
+    },
+    {
+      "type": "multiatlas",
+      "key": "character",
+      "url": "assets/atlas/character.json",
+      "path": "assets/atlas"
+    },
+    {
+      "type": "sceneFile",
+      "key": "Level",
+      "url": "assets/scene/Level.js"
+    },
+    {
+      "type": "script",
+      "key": "ship",
+      "url": "assets/prefabs/ship.js"
+    },
+    {
+      "type": "script",
+      "key": "waypoint",
+      "url": "assets/prefabs/waypoint.js"
+    },
+    {
+      "type": "image",
+      "key": "mountains-back",
+      "url": "assets/mountains-back.png",
+      "normalMap": ""
+    },
+    {
+      "type": "image",
+      "key": "mountains-mid1",
+      "url": "assets/mountains-mid1.png",
+      "normalMap": ""
+    },
+    {
+      "type": "image",
+      "key": "mountains-mid2",
+      "url": "assets/mountains-mid2.png",
+      "normalMap": ""
+    },
+    {
+      "type": "script",
+      "key": "FadePipeline",
+      "url": "assets/prefabs/FadePipeline.js"
+    },
+    {
+      "type": "script",
+      "key": "FadeRenderTexture",
+      "url": "assets/prefabs/FadeRenderTexture.js"
+    }
+  ]},
+  "meta": {
+    "generated": "1553968245723",
+    "app": "Phaser Editor",
+    "url": "https://phasereditor2d.com",
+    "version": "1.0",
+    "copyright": "Arian Fornaris (c) 2015,2018"
+  }
+}
