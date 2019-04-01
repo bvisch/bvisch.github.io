@@ -8,10 +8,13 @@ class Waypoint extends Phaser.Physics.Matter.Sprite {
 		
 		this.setIgnoreGravity(true);
 		
+		world.scene.waypoints++;
+		
 		world.on('collisionstart', (event, bodyA, bodyB) => {
 			if (bodyA.gameObject instanceof Waypoint) {
 				bodyA.gameObject.setVisible(false);
 				bodyA.gameObject.destroy();
+				bodyB.gameObject.scene.events.emit('waypoint_destroyed');
 			}
 		});
 	}

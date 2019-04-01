@@ -12,9 +12,10 @@ window.addEventListener('load', function() {
             "default": "matter", 
             "matter": { "debug": true, "gravity": { "y": 0.8 } }
         }
-    });
-    game.scene.add("Boot", Boot, true);
-    
+
+	});
+
+	game.scene.add("Boot", Boot, true);
 });
 
 class Boot extends Phaser.Scene {
@@ -23,8 +24,8 @@ class Boot extends Phaser.Scene {
         this.load.pack("section1", "assets/pack.json");
     }
 
-    create() {
-        this.scene.start("Level");
-    }
+	create() {
+		this.scene.start("Start");
+	}
 
 }

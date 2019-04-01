@@ -3,8 +3,41 @@
  */
 class Ship extends Phaser.Physics.Matter.Sprite {
 	
-	constructor(world, x, y, texture, frame, options, cursors) {
-		super(world, x, y, texture, frame, options);
+	constructor(scene, x, y, texture, frame, options, cursors) {
+		super(scene.matter.world, x, y, texture, frame, options);
+
+		var _this = this;
+		this.left = this.getBottomLeft();
+		this.right = this.getBottomRight();
+		this.leftThrustAngle = this.angle;
+		this.rightThrustAngle = this.angle;
+
+		this.particles = scene.add.particles('flares');
+		this.leftThruster = this.particles.createEmitter({
+			frame: 'blue',
+	        x: { onEmit: () => { return _this.left.x; } },
+	        y: { onEmit: () => { return _this.left.y; } },
+	        lifespan: 2000,
+	        speed: { min: 400, max: 600 },
+	        angle: { onEmit: function () { return _this.leftThrustAngle + 90; } },
+	        gravityY: 0,
+	        scale: { start: 0.4, end: 0 },
+	        quantity: 2,
+	        blendMode: 'ADD'
+		});
+
+		this.rightThruster = this.particles.createEmitter({
+			frame: 'blue',
+	        x: { onEmit: () => { return _this.right.x; } },
+	        y: { onEmit: () => { return _this.right.y; } },
+	        lifespan: 2000,
+	        speed: { min: 400, max: 600 },
+	        angle: { onEmit: function () { return _this.rightThrustAngle + 90; } },
+	        gravityY: 0,
+	        scale: { start: 0.4, end: 0 },
+	        quantity: 2,
+	        blendMode: 'ADD'
+		});
 		
 		this.cursors = cursors;
 
@@ -23,8 +56,8 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 	preUpdate() {
 		super.preUpdate();
 	
-		var left = this.getBottomLeft();
-		var right = this.getBottomRight();
+		this.left = this.getBottomLeft();
+		this.right = this.getBottomRight();
 	
 		var leftDifference = new Phaser.Math.Vector2(-60, 20);
 		var rightDifference = new Phaser.Math.Vector2(60, 20);
@@ -36,8 +69,8 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 		leftDifference.transformMat3(rotationMatrix);
 		rightDifference.transformMat3(rotationMatrix);
 		
-		left.add(leftDifference);
-		right.add(rightDifference);
+		this.left.add(leftDifference);
+		this.right.add(rightDifference);
 		
 		var forceMagnitude = 0.08;
 		var force = { 
@@ -45,21 +78,31 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 			y: forceMagnitude * Math.cos(shipRotation + Math.PI)
 		}
 		var negForce = { x: -force.x, y: -force.y };
+
+		this.leftThruster.stop();
+		this.rightThruster.stop();
 		
+		this.leftThrustAngle = this.rightThrustAngle = this.angle;
 		if (this.cursors.left.isDown) {
-			this.applyForceFrom(left, force);
+			this.leftThruster.start();
+			this.applyForceFrom(this.left, force);
 		}
 		
 		if (this.cursors.up.isDown) {
-			this.applyForceFrom(left, negForce);
+			this.leftThrustAngle += 180;
+			this.leftThruster.start();
+			this.applyForceFrom(this.left, negForce);
 		}
 		
 		if (this.cursors.right.isDown) {
-			this.applyForceFrom(right, force);
+			this.rightThruster.start();
+			this.applyForceFrom(this.right, force);
 		}
 		
 		if (this.cursors.down.isDown) {
-			this.applyForceFrom(right, negForce);
+			this.rightThrustAngle += 180;
+			this.rightThruster.start();
+			this.applyForceFrom(this.right, negForce);
 		}
 	}
 	

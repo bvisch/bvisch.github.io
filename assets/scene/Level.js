@@ -1,6 +1,9 @@
 
 // You can write more code here
 
+//(.*)var (.*) = this.add.image\((.*\);)
+//\1this.\2 = new Waypoint(this.matter.world, \3\n\1this.add.existing(this.\2);
+
 /* START OF COMPILED CODE */
 
 class Level extends Phaser.Scene {
@@ -25,30 +28,37 @@ class Level extends Phaser.Scene {
         mountains_mid2.visible = false;
         mountains_mid2.setScale(1.0, 2.0);
         
-        var fruit = this.add.image(1408.0, 320.0, 'character', 'fruit');
+        this.fruit = new Waypoint(this.matter.world, 1408.0, 320.0, 'character', 'fruit');
+        this.add.existing(this.fruit);
         
-        var fruit_1 = this.add.image(705.44775, 1169.7168, 'character', 'fruit');
+        this.fruit_1 = new Waypoint(this.matter.world, 705.44775, 1169.7168, 'character', 'fruit');
+        this.add.existing(this.fruit_1);
         
-        var fruit_2 = this.add.image(6080.0, 768.0, 'character', 'fruit');
+        this.fruit_2 = new Waypoint(this.matter.world, 6080.0, 768.0, 'character', 'fruit');
+        this.add.existing(this.fruit_2);
         
-        var fruit_4 = this.add.image(7360.0, 1216.0, 'character', 'fruit');
+        this.fruit_4 = new Waypoint(this.matter.world, 7360.0, 1216.0, 'character', 'fruit');
+        this.add.existing(this.fruit_4);
         
-        var fruit_5 = this.add.image(3776.0, 704.0, 'character', 'fruit');
+        this.fruit_5 = new Waypoint(this.matter.world, 3776.0, 704.0, 'character', 'fruit');
+        this.add.existing(this.fruit_5);
         
-        var fruit_6 = this.add.image(2321.3452, 1460.023, 'character', 'fruit');
+        this.fruit_6 = new Waypoint(this.matter.world, 2321.3452, 1460.023, 'character', 'fruit');
+        this.add.existing(this.fruit_6);
         
-        var fruit_3 = this.add.image(5056.0, 1216.0, 'character', 'fruit');
+        this.fruit_3 = new Waypoint(this.matter.world, 5056.0, 1216.0, 'character', 'fruit');
+        this.add.existing(this.fruit_3);
         
         this.fMountains_back = mountains_back;
         this.fMountains_mid1 = mountains_mid1;
         this.fMountains_mid2 = mountains_mid2;
-        this.fFruit = fruit;
-        this.fFruit_1 = fruit_1;
-        this.fFruit_2 = fruit_2;
-        this.fFruit_4 = fruit_4;
-        this.fFruit_5 = fruit_5;
-        this.fFruit_6 = fruit_6;
-        this.fFruit_3 = fruit_3;
+        // this.fFruit = fruit;
+        // this.fFruit_1 = fruit_1;
+        // this.fFruit_2 = fruit_2;
+        // this.fFruit_4 = fruit_4;
+        // this.fFruit_5 = fruit_5;
+        // this.fFruit_6 = fruit_6;
+        // this.fFruit_3 = fruit_3;
         
     }
     
@@ -95,7 +105,7 @@ class Level extends Phaser.Scene {
         
         this.cursors = this.input.keyboard.createCursorKeys();
 
-        this.ship = new Ship(this.matter.world, 400, 200, 'fruit', null, null, this.cursors);
+        this.ship = new Ship(this, 400, 200, 'fruit', null, null, this.cursors);
         this.add.existing(this.ship);
         
         this.cameras.main.startFollow(this.ship);
@@ -122,6 +132,12 @@ class Level extends Phaser.Scene {
         this.add.existing(this.fadeRenderTexture);
         this.fadeRenderTexture.setAlpha(0.8);
         this.fadeRenderTexture.setGlobalAlpha(0.8);
+
+        this.waypoints = 7;
+        this.events.on('waypoint_destroyed', () => {
+            // debugger;
+            this.waypoints--;
+        }, this);
         
         // this.rt2 = this.add.renderTexture(0, 0, this.gameWidth, this.gameHeight);
         // this.rt2.setAlpha(0.3);
