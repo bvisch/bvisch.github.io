@@ -99,11 +99,17 @@ class Level extends Phaser.Scene {
         this.graphics = this.add.graphics({ lineStyle: { color: 0xFFFFFF }, fillStyle: { color: 0x2266aa } });
         this.graphics2 = this.add.graphics({ lineStyle: { color: 0xFFFFFF }, fillStyle: { color: 0x2266aa } });
         
-        this.coins = 10000;
+        this.coins = 600;
         
         this.matter.world.setBounds(0,0, this.gameWidth, this.gameHeight);
         
-        this.cursors = this.input.keyboard.createCursorKeys();
+        this.cursors = this.input.keyboard.addKeys({
+            leftDown: 'X',
+            leftUp: 'S',
+            rightDown: 'M',
+            rightUp: 'K',
+            space: 'SPACE'
+        });
 
         this.ship = new Ship(this, 400, 200, 'fruit', null, null, this.cursors);
         this.add.existing(this.ship);
@@ -153,9 +159,13 @@ class Level extends Phaser.Scene {
         
         var shipRotation = Phaser.Math.Angle.Normalize(this.ship.rotation);
         
-        if (shipRotation > Math.PI/2 - Math.PI/32 && shipRotation < (3*Math.PI)/2 + Math.PI/32)
+        if (shipRotation > Math.PI/2 - Math.PI/32 && shipRotation < (3*Math.PI)/2 + Math.PI/32) {
             this.coins -= 1;
-        
+            if(this.coins < 0) {
+        		this.scene.start("Results", { coins: this.coins });
+        	}
+        }
+
         var left = this.ship.getBottomLeft();
         var right = this.ship.getBottomRight();
         var angularVelocity = this.ship.body.angularVelocity;

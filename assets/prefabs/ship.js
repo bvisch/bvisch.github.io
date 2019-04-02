@@ -14,7 +14,7 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 
 		this.particles = scene.add.particles('flares');
 		this.leftThruster = this.particles.createEmitter({
-			frame: 'blue',
+			frame: 'red',
 	        x: { onEmit: () => { return _this.left.x; } },
 	        y: { onEmit: () => { return _this.left.y; } },
 	        lifespan: 2000,
@@ -27,7 +27,7 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 		});
 
 		this.rightThruster = this.particles.createEmitter({
-			frame: 'blue',
+			frame: 'red',
 	        x: { onEmit: () => { return _this.right.x; } },
 	        y: { onEmit: () => { return _this.right.y; } },
 	        lifespan: 2000,
@@ -83,23 +83,23 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 		this.rightThruster.stop();
 		
 		this.leftThrustAngle = this.rightThrustAngle = this.angle;
-		if (this.cursors.left.isDown) {
+		if (this.cursors.leftDown.isDown) {
 			this.leftThruster.start();
 			this.applyForceFrom(this.left, force);
 		}
 		
-		if (this.cursors.up.isDown) {
+		if (this.cursors.leftUp.isDown) {
 			this.leftThrustAngle += 180;
 			this.leftThruster.start();
 			this.applyForceFrom(this.left, negForce);
 		}
 		
-		if (this.cursors.right.isDown) {
+		if (this.cursors.rightDown.isDown) {
 			this.rightThruster.start();
 			this.applyForceFrom(this.right, force);
 		}
 		
-		if (this.cursors.down.isDown) {
+		if (this.cursors.rightUp.isDown) {
 			this.rightThrustAngle += 180;
 			this.rightThruster.start();
 			this.applyForceFrom(this.right, negForce);

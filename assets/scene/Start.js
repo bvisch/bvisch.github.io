@@ -10,7 +10,7 @@ class Start extends Phaser.Scene {
 	
 	create() {
 		// create background & sprites
-		var title = this.add.image(400, 200, 'title');
+		var title = this.add.image(450, 300, 'title');
 		title.setInteractive();
 		title.on('pointerdown', () => this.scene.start("Level"));
 	}

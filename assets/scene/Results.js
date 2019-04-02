@@ -1,9 +1,15 @@
 class Results extends Phaser.Scene {
-	
+
 	constructor() {
-	
 		super('Results');
-		
+	}
+
+	init(data) {
+		this.coins = data.coins;
+		// this.rt = data.rt;
+		// this.mountains_back = data.mountains_back;
+		// this.mountains_mid1 = data.mountains_mid1;
+		// this.mountains_mid2 = data.mountains_mid2;
 	}
 	
 	preload() {
@@ -11,22 +17,14 @@ class Results extends Phaser.Scene {
 	}
 	
 	create() {
-		// create background & sprites
-		this.gameWidth = 4000;
-		this.gameHeight = 2200;
-		
-		this.mountains_back = this.add.tileSprite(this.gameWidth/2 - 400, 1344.0, this.gameWidth, 894.0, 'mountains-back');
-		this.mountains_back.setScale(1.0, 2.0);
-		
-		this.mountains_mid1 = this.add.tileSprite(this.gameWidth/2 - 400, 1472.0, this.gameWidth, 770.0, 'mountains-mid1');
-		this.mountains_mid1.setScale(1.0, 2.0);
-		
-		this.mountains_mid2 = this.add.tileSprite(this.gameWidth/2 - 400, 1728.0, this.gameWidth, 482.0, 'mountains-mid2');
-		this.mountains_mid2.setScale(1.0, 2.0);
-
-		this.mountains_back.setScrollFactor(0.7, 0.8);
-		this.mountains_mid1.setScrollFactor(0.75, 0.9);
-		this.mountains_mid2.setScrollFactor(0.8, 1);
+		this.cameras.main.setZoom(1.0);
+		if(this.coins > 0) {
+			this.add.text(400, 150, 'You Are Winner!');
+		}
+		else if(this.coins <= 0) {
+			this.add.text(400, 150, 'You Are Loser!');
+		}
+		this.add.text(400, 300, 'Click to Return');
+		this.input.once('pointerup', () => this.scene.start("Start"));
 	}
 }
-

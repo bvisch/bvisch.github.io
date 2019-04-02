@@ -1,0 +1,17 @@
+{
+  "-app": "Scene Editor - Phaser Editor v2.0.1",
+  "-version": 1,
+  "displayList": {
+    "-id": "fb8d030b-4e26-41e7-ba00-f0a07b5cef48",
+    "-type": "DisplayList",
+    "children": []
+  },
+  "groups": {
+    "-id": "f3845418-a295-4ee6-b068-d02b0b3c816d",
+    "-type": "Groups",
+    "children": []
+  },
+  "borderHeight": 450,
+  "methodContextType": "SCENE",
+  "sceneKey": "StageSelect"
+}
