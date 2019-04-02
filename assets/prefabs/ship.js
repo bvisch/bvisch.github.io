@@ -19,11 +19,12 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 	        y: { onEmit: () => { return _this.left.y; } },
 	        lifespan: 2000,
 	        speed: { min: 400, max: 600 },
-	        angle: { onEmit: function () { return _this.leftThrustAngle + 90; } },
+	        angle: { onEmit: () => { return _this.leftThrustAngle + 90; } },
 	        gravityY: 0,
 	        scale: { start: 0.4, end: 0 },
 	        quantity: 2,
-	        blendMode: 'ADD'
+	        blendMode: 'ADD',
+	        on: false
 		});
 
 		this.rightThruster = this.particles.createEmitter({
@@ -32,11 +33,31 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 	        y: { onEmit: () => { return _this.right.y; } },
 	        lifespan: 2000,
 	        speed: { min: 400, max: 600 },
-	        angle: { onEmit: function () { return _this.rightThrustAngle + 90; } },
+	        angle: { onEmit: () => { return _this.rightThrustAngle + 90; } },
 	        gravityY: 0,
 	        scale: { start: 0.4, end: 0 },
 	        quantity: 2,
-	        blendMode: 'ADD'
+	        blendMode: 'ADD',
+	        on: false
+		});
+
+
+		this.top = this.getTopLeft();
+
+		this.coins = 600;
+		// this.coinParticleManager = scene.add.particles('flares');
+		this.coinParticles = this.particles.createEmitter({
+			frame: 'yellow',
+	        x: { onEmit: () => { return _this.top.x; } },
+	        y: { onEmit: () => { return _this.top.y; } },
+	        lifespan: 2000,
+	        speed: { min: 400, max: 600 },
+	        angle: 90,
+	        gravityY: 500,
+	        scale: 0.2,
+	        quantity: 1,
+	        blendMode: 'ADD',
+	        on: false
 		});
 		
 		this.cursors = cursors;
@@ -58,9 +79,12 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 	
 		this.left = this.getBottomLeft();
 		this.right = this.getBottomRight();
+		this.top = this.getTopLeft();
 	
 		var leftDifference = new Phaser.Math.Vector2(-60, 20);
 		var rightDifference = new Phaser.Math.Vector2(60, 20);
+		debugger;
+		var topDifference = new Phaser.Math.Vector2(this.width/2, -50);
 		
 		var shipRotation = Phaser.Math.Angle.Normalize(this.rotation);
 		var rotationMatrix = new Phaser.Math.Matrix3();
@@ -68,9 +92,11 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 		rotationMatrix.rotate(shipRotation);
 		leftDifference.transformMat3(rotationMatrix);
 		rightDifference.transformMat3(rotationMatrix);
+		topDifference.transformMat3(rotationMatrix);
 		
 		this.left.add(leftDifference);
 		this.right.add(rightDifference);
+		this.top.add(topDifference);
 		
 		var forceMagnitude = 0.08;
 		var force = { 
@@ -104,6 +130,13 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 			this.rightThruster.start();
 			this.applyForceFrom(this.right, negForce);
 		}
+        
+        if (shipRotation > Math.PI/2 - Math.PI/32 && shipRotation < (3*Math.PI)/2 + Math.PI/32) {
+            this.coins -= 1;
+            this.coinParticles.start();
+        }
+        else
+        	this.coinParticles.stop();
 	}
 	
 }

@@ -89,25 +89,24 @@ class Level extends Phaser.Scene {
         
 
         
-        
-        this.textAngle = this.add.text(10, 10);
-        this.textForce = this.add.text(10, 50);
-        this.textVelocity = this.add.text(10, 90);
-        this.textCoins = this.add.text(1500, 1500);
+        this.textCoins = this.add.text(1, 1, '', { fontSize: 50, fontStyle: 'bold' });
+        this.textCoins.setColor('#BAE');
+        this.textCoins.setDepth(1000);
+        this.textCoins.setScrollFactor(0.0);
 
         
         this.graphics = this.add.graphics({ lineStyle: { color: 0xFFFFFF }, fillStyle: { color: 0x2266aa } });
         this.graphics2 = this.add.graphics({ lineStyle: { color: 0xFFFFFF }, fillStyle: { color: 0x2266aa } });
         
-        this.coins = 600;
+        // this.coins = 600;
         
         this.matter.world.setBounds(0,0, this.gameWidth, this.gameHeight);
         
         this.cursors = this.input.keyboard.addKeys({
-            leftDown: 'X',
-            leftUp: 'S',
-            rightDown: 'M',
-            rightUp: 'K',
+            leftDown: 'S',
+            leftUp: 'W',
+            rightDown: 'K',
+            rightUp: 'O',
             space: 'SPACE'
         });
 
@@ -143,6 +142,9 @@ class Level extends Phaser.Scene {
         this.events.on('waypoint_destroyed', () => {
             // debugger;
             this.waypoints--;
+            if (this.waypoints == 0)
+                this.scene.start("Results", { coins: this.ship.coins });
+
         }, this);
         
         // this.rt2 = this.add.renderTexture(0, 0, this.gameWidth, this.gameHeight);
@@ -158,13 +160,10 @@ class Level extends Phaser.Scene {
     update() {
         
         var shipRotation = Phaser.Math.Angle.Normalize(this.ship.rotation);
-        
-        if (shipRotation > Math.PI/2 - Math.PI/32 && shipRotation < (3*Math.PI)/2 + Math.PI/32) {
-            this.coins -= 1;
-            if(this.coins < 0) {
-        		this.scene.start("Results", { coins: this.coins });
-        	}
-        }
+
+        if(this.ship.coins <= 0) {
+    		this.scene.start("Results", { coins: this.ship.coins });
+    	}
 
         var left = this.ship.getBottomLeft();
         var right = this.ship.getBottomRight();
@@ -175,10 +174,7 @@ class Level extends Phaser.Scene {
             y: forceMagnitude * Math.cos(shipRotation + Math.PI)
         }
 
-        this.textCoins.setText("Coins " + this.coins);
-        this.textAngle.setText("Angle " + shipRotation.toFixed(3));
-        this.textForce.setText("Left " + left.x.toFixed(3) + " " + left.y.toFixed(3));
-        this.textVelocity.setText("Angular Velocity " + angularVelocity.toFixed(3));
+        this.textCoins.setText("Coins " + this.ship.coins);
         
         var leftDifference = new Phaser.Math.Vector2(-60, 20);
         var rightDifference = new Phaser.Math.Vector2(60, 20);
