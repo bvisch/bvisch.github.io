@@ -6,11 +6,10 @@ window.addEventListener('load', function() {
         "width": 900,
         "height": 600,
         "type": Phaser.AUTO,
-        //"backgroundColor": "#697eef",
         "backgroundColor": "#beeeff",
         "physics": {
             "default": "matter", 
-            "matter": { "debug": true, "gravity": { "y": 0.8 } }
+            "matter": { "debug": false, "gravity": { "y": 0.8 } }
         }
 
 	});

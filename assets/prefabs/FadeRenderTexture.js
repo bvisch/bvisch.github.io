@@ -12,8 +12,7 @@ class FadeRenderTexture extends Phaser.GameObjects.RenderTexture {
 
         if (gl) {
             this.overwriteBlendMode = this.renderer.addBlendMode([gl.ONE, gl.ZERO], gl.FUNC_ADD);
-
-            this.texture2 = scene.sys.textures.createCanvas('texture2', width, height);
+            this.texture2 = scene.sys.textures.createCanvas(Phaser.Utils.String.UUID(), width, height);
             this.frame2 = this.texture2.get();
 
             this.fadePipeline = new FadePipeline(scene.sys.game, scene.sys.game.renderer);
@@ -94,6 +93,16 @@ class FadeRenderTexture extends Phaser.GameObjects.RenderTexture {
         this.dirty = true;
 
         return this;
+    }
+
+    preDestroy() {
+        super.preDestroy();
+        Phaser.Display.Canvas.CanvasPool.remove(this.texture2.canvas);
+
+        if (this.gl) {
+            this.renderer.deleteFramebuffer(this.framebuffer2);
+            this.texture2.destroy();
+        }
     }
 }
 

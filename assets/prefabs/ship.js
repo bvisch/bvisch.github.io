@@ -17,8 +17,8 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 			frame: 'red',
 	        x: { onEmit: () => { return _this.left.x; } },
 	        y: { onEmit: () => { return _this.left.y; } },
-	        lifespan: 2000,
-	        speed: { min: 400, max: 600 },
+	        lifespan: 500,
+	        speed: { min: 1000, max: 1200 },
 	        angle: { onEmit: () => { return _this.leftThrustAngle + 90; } },
 	        gravityY: 0,
 	        scale: { start: 0.4, end: 0 },
@@ -31,8 +31,8 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 			frame: 'red',
 	        x: { onEmit: () => { return _this.right.x; } },
 	        y: { onEmit: () => { return _this.right.y; } },
-	        lifespan: 2000,
-	        speed: { min: 400, max: 600 },
+	        lifespan: 500,
+	        speed: { min: 1000, max: 1200 },
 	        angle: { onEmit: () => { return _this.rightThrustAngle + 90; } },
 	        gravityY: 0,
 	        scale: { start: 0.4, end: 0 },
@@ -44,7 +44,7 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 
 		this.top = this.getTopLeft();
 
-		this.coins = 600;
+		this.coins = 1000;
 		// this.coinParticleManager = scene.add.particles('flares');
 		this.coinParticles = this.particles.createEmitter({
 			frame: 'yellow',
@@ -60,31 +60,42 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 	        on: false
 		});
 		
+		this.emitZoneLeft = this.getTopLeft();
+		this.emitZoneRight = this.getTopRight();
+		this.emitZoneLine = new Phaser.Geom.Line(0, 0, this.emitZoneRight.x - this.emitZoneLeft.x, this.emitZoneRight.y - this.emitZoneLeft.y);
+		this.emitZone = { 
+			source: this.emitZoneLine,
+			type: 'random'
+		};
+		
+		this.coinParticles.setEmitZone(this.emitZone);
+		
 		this.cursors = cursors;
 
 		this.setBody({
 			type: 'rectangle',
-			width: 200,
-			height: 100,
+			width: this.width,
+			height: this.height,
 			x: 400,
 			y: 200
 		});
 
-		this.setFrictionAir(0.01);
+		this.setFrictionAir(0.02);
 		this.setMass(100);
+		
+		this.setDepth(1000);
 	}
 	
 	preUpdate() {
 		super.preUpdate();
 	
-		this.left = this.getBottomLeft();
-		this.right = this.getBottomRight();
-		this.top = this.getTopLeft();
+		this.getBottomLeft(this.left);
+		this.getBottomRight(this.right);
+		this.getTopLeft(this.top);
 	
-		var leftDifference = new Phaser.Math.Vector2(-60, 20);
-		var rightDifference = new Phaser.Math.Vector2(60, 20);
-		debugger;
-		var topDifference = new Phaser.Math.Vector2(this.width/2, -50);
+		var leftDifference = new Phaser.Math.Vector2(10, -10);
+		var rightDifference = new Phaser.Math.Vector2(-10, -10);
+		// var topDifference = new Phaser.Math.Vector2(this.width/2, 0);
 		
 		var shipRotation = Phaser.Math.Angle.Normalize(this.rotation);
 		var rotationMatrix = new Phaser.Math.Matrix3();
@@ -92,11 +103,11 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 		rotationMatrix.rotate(shipRotation);
 		leftDifference.transformMat3(rotationMatrix);
 		rightDifference.transformMat3(rotationMatrix);
-		topDifference.transformMat3(rotationMatrix);
+		// topDifference.transformMat3(rotationMatrix);
 		
 		this.left.add(leftDifference);
 		this.right.add(rightDifference);
-		this.top.add(topDifference);
+		// this.top.add(topDifference);
 		
 		var forceMagnitude = 0.08;
 		var force = { 
@@ -131,8 +142,19 @@ class Ship extends Phaser.Physics.Matter.Sprite {
 			this.applyForceFrom(this.right, negForce);
 		}
         
-        if (shipRotation > Math.PI/2 - Math.PI/32 && shipRotation < (3*Math.PI)/2 + Math.PI/32) {
-            this.coins -= 1;
+        if (shipRotation > Math.PI/2 && shipRotation < (3*Math.PI)/2) {
+			this.emitZoneLeft = this.getTopLeft()
+			this.emitZoneRight = this.getTopRight();
+			
+			this.emitZoneLine.setTo(0, 0, this.emitZoneRight.x - this.emitZoneLeft.x, this.emitZoneRight.y - this.emitZoneLeft.y);
+			// this.emitZone = { 
+			// 	source: this.emitZoneLine,
+			// 	type: 'random'
+			// };
+			
+			// this.coinParticles.emitZone.updateSource();
+
+            this.coins -= Math.floor(Math.min(Math.abs(shipRotation - (Math.PI/2)), Math.abs(shipRotation - (3*Math.PI)/2)) * 5);
             this.coinParticles.start();
         }
         else

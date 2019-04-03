@@ -1,9 +1,6 @@
 
 // You can write more code here
 
-//(.*)var (.*) = this.add.image\((.*\);)
-//\1this.\2 = new Waypoint(this.matter.world, \3\n\1this.add.existing(this.\2);
-
 /* START OF COMPILED CODE */
 
 class Level extends Phaser.Scene {
@@ -15,7 +12,7 @@ class Level extends Phaser.Scene {
     }
     
     _create() {
-    
+
         var mountains_back = this.add.tileSprite(4480.0, 1344.0, 9000.0, 894.0, 'mountains-back');
         mountains_back.visible = false;
         mountains_back.setScale(1.0, 2.0);
@@ -28,44 +25,16 @@ class Level extends Phaser.Scene {
         mountains_mid2.visible = false;
         mountains_mid2.setScale(1.0, 2.0);
         
-        this.fruit = new Waypoint(this.matter.world, 1408.0, 320.0, 'character', 'fruit');
-        this.add.existing(this.fruit);
-        
-        this.fruit_1 = new Waypoint(this.matter.world, 705.44775, 1169.7168, 'character', 'fruit');
-        this.add.existing(this.fruit_1);
-        
-        this.fruit_2 = new Waypoint(this.matter.world, 6080.0, 768.0, 'character', 'fruit');
-        this.add.existing(this.fruit_2);
-        
-        this.fruit_4 = new Waypoint(this.matter.world, 7360.0, 1216.0, 'character', 'fruit');
-        this.add.existing(this.fruit_4);
-        
-        this.fruit_5 = new Waypoint(this.matter.world, 3776.0, 704.0, 'character', 'fruit');
-        this.add.existing(this.fruit_5);
-        
-        this.fruit_6 = new Waypoint(this.matter.world, 2321.3452, 1460.023, 'character', 'fruit');
-        this.add.existing(this.fruit_6);
-        
-        this.fruit_3 = new Waypoint(this.matter.world, 5056.0, 1216.0, 'character', 'fruit');
-        this.add.existing(this.fruit_3);
-        
         this.fMountains_back = mountains_back;
         this.fMountains_mid1 = mountains_mid1;
         this.fMountains_mid2 = mountains_mid2;
-        // this.fFruit = fruit;
-        // this.fFruit_1 = fruit_1;
-        // this.fFruit_2 = fruit_2;
-        // this.fFruit_4 = fruit_4;
-        // this.fFruit_5 = fruit_5;
-        // this.fFruit_6 = fruit_6;
-        // this.fFruit_3 = fruit_3;
         
     }
     
     /* START-USER-CODE */
 
     create() {
-    
+        this.events.off('waypoint_destroyed');
         this.gameWidth = 4000;
         this.gameHeight = 2000;
         
@@ -86,19 +55,48 @@ class Level extends Phaser.Scene {
         this.mountains_mid2.setScrollFactor(0.8, 1);
         
         this._create();
-        
 
-        
-        this.textCoins = this.add.text(1, 1, '', { fontSize: 50, fontStyle: 'bold' });
-        this.textCoins.setColor('#BAE');
-        this.textCoins.setDepth(1000);
+
+        this.waypoints = [];
+        this.leftMostWaypoint = 0;
+
+        this.waypointCount = 7;
+
+        for(var i = 0; i < this.waypointCount; i++) {
+            let x_val = ((this.gameWidth - 200)/this.waypointCount * i) + 100;
+            let y_val = Phaser.Math.Between(100, this.gameHeight - 100);
+
+            let waypoint = new Waypoint(this.matter.world, x_val, y_val);
+            waypoint.setData('index', i);
+            this.add.existing(waypoint);
+            this.waypoints.push(waypoint);
+        }
+
+        this.events.on('waypoint_destroyed', (index) => {
+            this.waypoints[index] = null;
+            
+            var remainingWaypoints = this.waypoints.filter((el) => el !== null);
+            this.waypointCount--;
+            
+            if (this.waypointCount === 0)
+            	this.nextScene();
+            else
+            	this.leftMostWaypoint = remainingWaypoints[0].getData('index');
+
+        }, this);
+
+        this.timer = this.time.addEvent({
+            delay: 9999999999*1000
+        });
+
+        this.textCoins = this.add.text(300, 700, '', { fontSize: 50, fontStyle: 'bold' });
+        this.textCoins.setColor('#FFF');
+        this.textCoins.setDepth(3000);
         this.textCoins.setScrollFactor(0.0);
 
         
         this.graphics = this.add.graphics({ lineStyle: { color: 0xFFFFFF }, fillStyle: { color: 0x2266aa } });
         this.graphics2 = this.add.graphics({ lineStyle: { color: 0xFFFFFF }, fillStyle: { color: 0x2266aa } });
-        
-        // this.coins = 600;
         
         this.matter.world.setBounds(0,0, this.gameWidth, this.gameHeight);
         
@@ -110,7 +108,7 @@ class Level extends Phaser.Scene {
             space: 'SPACE'
         });
 
-        this.ship = new Ship(this, 400, 200, 'fruit', null, null, this.cursors);
+        this.ship = new Ship(this, 0, 0, 'potogold', null, null, this.cursors);
         this.add.existing(this.ship);
         
         this.cameras.main.startFollow(this.ship);
@@ -135,118 +133,44 @@ class Level extends Phaser.Scene {
 
         this.fadeRenderTexture = new FadeRenderTexture(this, 0, 0, this.gameWidth, this.gameHeight, this.cursors);
         this.add.existing(this.fadeRenderTexture);
-        this.fadeRenderTexture.setAlpha(0.8);
-        this.fadeRenderTexture.setGlobalAlpha(0.8);
+        this.fadeRenderTexture.setAlpha(0.6);
+        this.fadeRenderTexture.setGlobalAlpha(0.6);
 
-        this.waypoints = 7;
-        this.events.on('waypoint_destroyed', () => {
-            // debugger;
-            this.waypoints--;
-            if (this.waypoints == 0)
-                this.scene.start("Results", { coins: this.ship.coins });
 
-        }, this);
-        
-        // this.rt2 = this.add.renderTexture(0, 0, this.gameWidth, this.gameHeight);
-        // this.rt2.setAlpha(0.3);
-        // this.rt2.setGlobalAlpha(0.3);
-        // this.rt2.setVisible(false);
-        
-        // this.rt3 = this.add.renderTexture(0, 0, this.gameWidth, this.gameHeight);
-        // this.rt3.setAlpha(0.3);
-        // this.rt3.setGlobalAlpha(0.3);
+		this.shipCentre = this.ship.getCenter();
+        this.pointer = this.add.triangle(0,0, 20,0, 0,40, 40,40, 0xffff22);
     }
 
     update() {
         
         var shipRotation = Phaser.Math.Angle.Normalize(this.ship.rotation);
-
+        
         if(this.ship.coins <= 0) {
-    		this.scene.start("Results", { coins: this.ship.coins });
+            this.nextScene();
     	}
 
-        var left = this.ship.getBottomLeft();
-        var right = this.ship.getBottomRight();
-        var angularVelocity = this.ship.body.angularVelocity;
-        var forceMagnitude = 0.08;
-        var force = { 
-            x: forceMagnitude * -Math.sin(shipRotation + Math.PI), 
-            y: forceMagnitude * Math.cos(shipRotation + Math.PI)
+        var left = this.ship.left;
+        var right = this.ship.right;
+        
+        this.ship.getCenter(this.shipCentre);
+        
+        if (this.waypointCount > 0) {
+	        var pointerPoint = this.shipCentre.clone();
+	        var pointerVector = pointerPoint.subtract(this.waypoints[this.leftMostWaypoint].getCenter()).normalize();
+	        pointerVector.scale(130);
+	        var pointerPoint = this.shipCentre.subtract(pointerVector);
+	        
+	        var pointerAngle = Phaser.Math.Angle.BetweenPoints(this.ship.getCenter(), pointerPoint);
+	
+	        this.pointer.setPosition(pointerPoint.x, pointerPoint.y);
+	        this.pointer.setRotation(pointerAngle + Math.PI/2);
         }
 
-        this.textCoins.setText("Coins " + this.ship.coins);
+        this.textCoins.setText("Coins: " + this.ship.coins);
         
-        var leftDifference = new Phaser.Math.Vector2(-60, 20);
-        var rightDifference = new Phaser.Math.Vector2(60, 20);
-        
-        var rotation = new Phaser.Math.Matrix3();
-        
-        rotation.rotate(shipRotation);
-        leftDifference.transformMat3(rotation);
-        rightDifference.transformMat3(rotation);
-        
-        left.add(leftDifference);
-        right.add(rightDifference);
-        
-        // var angle = Phaser.Math.Angle.Normalize((this.ship.rotation*2) + (Math.PI));
-        // angle = Phaser.Math.Clamp(angle, 0.5, (2 * Math.PI - 0.5));
-        
-        // var lerpValue = angle / (2 * Math.PI);
-
-        // var pointX = Phaser.Math.Interpolation.Linear([right.x, left.x], lerpValue);
-        // var pointY = Phaser.Math.Interpolation.Linear([right.y, left.y], lerpValue);
-        // var point = { x: pointX, y: pointY };
-        
-        // var rightingForceMagnitude = 0.2;
-        // var rightingForce = { 
-        //  x: rightingForceMagnitude * Math.sin(shipRotation + Math.PI), 
-        //  y: rightingForceMagnitude * -Math.cos(shipRotation + Math.PI)
-        // }
-        
-        //this.ship.applyForceFrom(point, rightingForce);
-        
-        // var negForce = { x: -force.x, y: -force.y };
-        
-        
-        
-        
-        
-        var direction = new Phaser.Math.Vector2(this.ship.body.velocity);
-        // direction.normalize();
-        
-        // var lineStartPoint = new Phaser.Geom.Point(1500, 2000);
-        var lineStartPoint = this.ship.body.position;
-        var lineEndPoint = new Phaser.Geom.Point(lineStartPoint.x + direction.x*100, lineStartPoint.y + direction.y*100);
-        var line = new Phaser.Geom.Line(lineStartPoint.x, lineStartPoint.y, lineEndPoint.x, lineEndPoint.y);
-        
-        direction.normalize();
-        var tempY = direction.y;
-        direction.y = direction.x;
-        direction.x = tempY;
-        
-        direction.scale(10);
         
         this.graphics.clear();
         this.graphics2.clear();
-        // this.graphics2.strokeLineShape(line);
-        
-        this.graphics.fillPointShape(left, 30);
-        this.graphics.fillPointShape(right, 30);
-        // this.graphics.fillPointShape(point, 40);
-
-
-        
-        
-        // var shipPosition = new Phaser.Math.Vector2(this.ship.body.position);
-        // shipPosition.subtract(direction).subtract(direction);
-        
-        // for (var i = 1; i < 8; i++) {
-        //  var colourIndex = Phaser.Math.FloorTo((360/8) * i-1);
-        //  var colourObject = this.colourWheel[colourIndex];
-        //  this.graphics2.fillStyle(colourObject.color, 0.2);
-        //  this.graphics2.fillPointShape(shipPosition, 10);
-        //  shipPosition.add(direction);
-        // }
 
         for (var i = 1; i < this.numColours; i++) {
             var pointX = Phaser.Math.Interpolation.Linear([right.x, left.x], i/this.numColours);
@@ -258,10 +182,6 @@ class Level extends Phaser.Scene {
         this.rt.draw(this.graphics2);
         this.fadeRenderTexture.draw(this.graphics2);
         
-        // this.rt3.clear();
-        // this.rt3.draw([this.rt2, this.graphics2], null, null, 0.1);
-        // this.rt2.draw(this.rt3, null, null, 0.1);
-        
         if (this.cursors.space.isDown) {
             this.rt.setVisible(true);
             this.rt.setAlpha(1.0);
@@ -272,40 +192,33 @@ class Level extends Phaser.Scene {
     }
 
 
+    nextScene() {
+        var elapsedSeconds = this.timer.getElapsedSeconds();
+        this.rt.ignoreDestroy = true;
+        this.mountains_back.ignoreDestroy = true;
+        this.mountains_mid1.ignoreDestroy = true;
+        this.mountains_mid2.ignoreDestroy = true;
+        this.scene.start("Results", {
+            cameraScrollX: this.cameras.main.scrollX,
+            cameraScrollY: this.cameras.main.scrollY,
+            elapsedSeconds: elapsedSeconds,
+            gameWidth: this.gameWidth,
+            gameHeight: this.gameHeight,
+            coins: this.ship.coins,
+            maxCoins: 1000,
+            waypointsHit: this.waypoints.length - this.waypointCount,
+            maxWaypoints: this.waypoints.length,
+            rt: this.rt, 
+            mountains_back: this.mountains_back,
+            mountains_mid1: this.mountains_mid1,
+            mountains_mid2: this.mountains_mid2
+        });
+    }
+
+
     /* END-USER-CODE */
 }
 
 /* END OF COMPILED CODE */
 
 // You can write more code here
-
-
-        // var fruit = new Waypoint(this.matter.world, 371.2782, 266.19022)
-        // this.add.existing(fruit)
-        
-        // var fruit_1 = new Waypoint(this.matter.world, 705.44775, 1169.7168)
-        // this.add.existing(fruit_1)
-        
-        // var fruit_2 = new Waypoint(this.matter.world, 2230.903, 795.8898)
-        // this.add.existing(fruit_2)
-        
-        // var fruit_3 = new Waypoint(this.matter.world, 2640.9067, 1905.3119)
-        // this.add.existing(fruit_3)
-        
-        // var fruit_4 = new Waypoint(this.matter.world, 1037.0685, 2526.3472)
-        // this.add.existing(fruit_4)
-        
-        // var fruit_5 = new Waypoint(this.matter.world, 1646.0447, 1670.1626)
-        // this.add.existing(fruit_5)
-        
-        // var fruit_6 = new Waypoint(this.matter.world, 2321.3452, 2460.023)
-        // this.add.existing(fruit_6)
-        
-        // this.fFruit = fruit;
-        // this.fFruit_1 = fruit_1;
-        // this.fFruit_2 = fruit_2;
-        // this.fFruit_3 = fruit_3;
-        // this.fFruit_4 = fruit_4;
-        // this.fFruit_5 = fruit_5;
-        // this.fFruit_6 = fruit_6;
-
