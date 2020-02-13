@@ -1,24 +1,206 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1"
+    />
+    <title>MediaStream Recording -> MediaSource</title>
+    <style>
 
-<head>
-	<meta charset="UTF-8" />
-	<meta name=viewport content="width=device-width, initial-scale=1">
+     html, body {
+       margin: 0 !important;
+       padding: 0 !important;
+     }
+    </style>
+  </head>
 
-	<title>ShamRocket</title>
+  <body>
+    <div id="container">
+      <video id="gum" playsinline="" autoplay hidden></video>
+      <video id="recorded" playsinline="" src="" hidden></video>
+      <canvas width=1280 height=720></canvas>
+    </div>
 
-	<script src="lib/phaser.js"></script>
-	<script src="main.js"></script>
+    <script type="text/javascript">
 
-	<style>
-		body {
-			background: black;
-			margin: 0;
-			padding: 0;
-		}
-	</style>
-</head>
+     "use strict";
 
-<body>
-</body>
+     const mediaSource = new MediaSource();
+     mediaSource.addEventListener("sourceopen", handleSourceOpen);
+
+     let mediaRecorder;
+     let recordedBlobs;
+     let sourceBuffer;
+     let updatingBuffer = false;
+     let options;
+     const constraints = {
+       video: {
+         width: 1280,
+         height: 720
+       }
+     };
+     let userMediaStream;
+
+     var startTime;
+
+     const recordedVideo = document.querySelector("video#recorded");
+     recordedVideo.removeAttribute('controls');
+
+     const canvas = document.querySelector("canvas");
+     canvas.width = window.innerWidth;
+     canvas.height = window.innerHeight;
+     const ctx = canvas.getContext("2d");
+
+     ctx.textBaseline = 'middle';
+     ctx.textAlign = 'center';
+     ctx.font = '30px Times New Roman';
+     ctx.fillText('Click anywhere to begin.\nPlease experience for at least one or two minutes.\nIt is OK to divide your attention during the experience.', canvas.width/2, canvas.height/2);
+
+     function start() {
+       ctx.translate(canvas.width / 2, canvas.height / 2);
+       ctx.scale(-1, 1);
+       ctx.translate(-(canvas.width/2), -(canvas.height/2));
+       startRecording();
+       startExperience();
+       startTime = Date.now();
+
+       canvas.removeEventListener('click', start);
+     }
+
+     canvas.addEventListener('click', start);
+
+     function handleSourceOpen(event) {
+       sourceBuffer = mediaSource.addSourceBuffer(options.mimeType);
+       sourceBuffer.addEventListener("error", e =>
+         console.log(e)
+       );
+       sourceBuffer.addEventListener("updateend", () => {
+         updatingBuffer = false;
+       });
+     }
+
+     async function handleDataAvailable(event) {
+       if (event.data && event.data.size > 0) {
+         recordedBlobs.push(event.data);
+       }
+
+       if (recordedBlobs.length > 5) {
+         if (!updatingBuffer) {
+           updatingBuffer = true;
+           const bufferedBlob = recordedBlobs.shift();
+           const bufferedAsArrayBuffer = await bufferedBlob.arrayBuffer();
+           if (!sourceBuffer.updating) {
+             sourceBuffer.appendBuffer(bufferedAsArrayBuffer);
+           } else {
+             recordedBlobs.unshift(bufferedBlob);
+           }
+         }
+       }
+     }
+
+     async function startRecording() {
+       await startUserMedia(constraints);
+
+       recordedBlobs = [];
+       options = { mimeType: "video/webm;codecs=vp8" };
+
+       try {
+         mediaRecorder = new MediaRecorder(userMediaStream, options);
+       } catch (e) {
+         console.log(e);
+       }
+
+       mediaRecorder.ondataavailable = handleDataAvailable;
+       mediaRecorder.start(100); // collect 100ms of data
+
+       recordedVideo.src = null;
+       recordedVideo.srcObject = null;
+       recordedVideo.src = window.URL.createObjectURL(mediaSource);
+       recordedVideo.controls = true;
+       try {
+         await recordedVideo.play();
+       } catch (e) {
+         console.log(e);
+       }
+     }
+
+     function stopRecording() {
+       stopUserMedia();
+       mediaRecorder.stop();
+     }
+
+     const gumVideo = document.querySelector("video#gum");
+     async function startUserMedia(constraints) {
+       try {
+         userMediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+         gumVideo.srcObject = userMediaStream;
+       } catch (e) {
+         console.log(e);
+       }
+     }
+
+     function stopUserMedia() {
+       const tracks = userMediaStream.getTracks();
+       for (const track of tracks) {
+         track.stop();
+         userMediaStream.removeTrack(track);
+       }
+       userMediaStream = null;
+     }
+
+     var whichVideo = 'gum';
+     var currentVideo = gumVideo;
+
+     function switchVideo() {
+       if (whichVideo === 'gum') {
+         whichVideo = 'recorded';
+         currentVideo = recordedVideo;
+       }
+       else {
+         whichVideo = 'gum';
+         currentVideo = gumVideo;
+       }
+     }
+
+
+     function startExperience() {
+       setTimeout(skip, 10000);
+       step();
+     }
+
+     var liveDelayTime = 8;
+     function skip() {
+       let currentTime = Date.now();
+       let elapsedSeconds = (currentTime - startTime)/1000;
+
+       recordedVideo.currentTime = Math.random() * elapsedSeconds;
+
+       let delayTime = Math.random() * 10 + 3;
+
+       switchVideo();
+       if (whichVideo === 'gum') {
+         delayTime = Math.random() * liveDelayTime + 1;
+         liveDelayTime = Math.max(liveDelayTime - 1, 1);
+       }
+
+       setTimeout(skip, delayTime * 1000);
+     }
+
+     function step() {
+       ctx.drawImage(currentVideo, 0, 0, canvas.width, canvas.height);
+       requestAnimationFrame(step);
+     }
+
+     /* recordedVideo.addEventListener('play', () => {
+      *     function step() {
+      *         ctx.drawImage(recordedVideo, 0, 0, canvas.width, canvas.height);
+      *         requestAnimationFrame(step);
+      *     }
+      *     requestAnimationFrame(step);
+      * });
+      */
+    </script>
+  </body>
 </html>
