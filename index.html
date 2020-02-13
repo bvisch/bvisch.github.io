@@ -13,6 +13,10 @@
        margin: 0 !important;
        padding: 0 !important;
      }
+
+     *:fullscreen, *:-webkit-full-screen, *:-moz-full-screen {
+       background-color: rgba(255,255,255,0);
+     }
     </style>
   </head>
 
@@ -126,29 +130,25 @@
        }
      }
 
-     function stopRecording() {
-       stopUserMedia();
-       mediaRecorder.stop();
-     }
-
      const gumVideo = document.querySelector("video#gum");
      async function startUserMedia(constraints) {
        try {
          userMediaStream = await navigator.mediaDevices.getUserMedia(constraints);
          gumVideo.srcObject = userMediaStream;
+         if (canvas.requestFullscreen) {
+           canvas.requestFullscreen();
+         } else if (canvas.mozRequestFullScreen) { /* Firefox */
+           canvas.mozRequestFullScreen();
+         } else if (canvas.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+           canvas.webkitRequestFullscreen();
+         } else if (canvas.msRequestFullscreen) { /* IE/Edge */
+           canvas.msRequestFullscreen();
+         }
        } catch (e) {
          console.log(e);
        }
      }
 
-     function stopUserMedia() {
-       const tracks = userMediaStream.getTracks();
-       for (const track of tracks) {
-         track.stop();
-         userMediaStream.removeTrack(track);
-       }
-       userMediaStream = null;
-     }
 
      var whichVideo = 'gum';
      var currentVideo = gumVideo;
